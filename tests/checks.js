@@ -9,24 +9,26 @@ const fs = require("fs");
 const process = require("process")
 var Git = require("nodegit");
 
+const TEST_PORT = 1337;
+
 
 const DEBUG =  typeof process.env.DEBUG !== "undefined";
 const WAIT =  typeof process.env.WAIT !== "undefined"?parseInt(process.env.WAIT):50000;
+
+const FILTER = new RegExp(process.env.TESTFILTER, "i")
 
 const path_assignment = path.resolve(path.join(__dirname, "../", "quiz_2020"));
 const URL = `file://${path_assignment.replace("%", "%25")}`;
 const browser = new Browser({"waitDuration": WAIT, "silent": true});
 
-// CRITICAL ERRORS
+// CRITICAL ERRORS. Si hay errores críticos, el resto de tests no se lanzan.
 let error_critical = null;
 
 
-var orig_it = it;
-
-// Cambiar si cambia el seeder
+// Hay que cambiar los IDs si cambia el seeder
 const groups = {
-    "1": [1,2,3,4], // Geography
-    "2":  [5,6],// Math
+    "1": [1, 2, 3, 4], // Geography
+    "2":  [5, 6],      // Math
 };
 
 const questions = [
@@ -57,7 +59,14 @@ const questions = [
 ]
 
 
+// TODO: Integrar bien con un logger
+function log() {
+    if(DEBUG) {console.log.apply(this, arguments );}
+}
 
+
+// Monkey-patching del método it para no repetir código, y manejar mejor los errores en el desarrollo del test.
+var orig_it = it;
 it = function(name, score, func) {
     return orig_it(name, async function () {
         let critical = score < 0;
@@ -67,7 +76,12 @@ it = function(name, score, func) {
         if(error_critical) {
             this.msg_err = "Un test crítico ha fallado, no podemos continuar hasta que pasen todos los tests críticos.";
             throw Error(this.msg_err);
+        } 
+        if(FILTER && !FILTER.test(name)) {
+            console.log(`Ignorando este test, de acuerdo con los filtros de test: ${FILTER}`)
+            return
         }
+
         try {
             res = await func.apply(this, [])
             if (!this.msg_ok){
@@ -75,11 +89,7 @@ it = function(name, score, func) {
             }
             return;
         } catch(e){
-            if(critical) {
-            }
-            if (DEBUG) {
-                console.log("Exception in test:", e);
-            }
+            log("Exception in test:", e);
             if (!this.msg_err){
                 this.msg_err =  "Ha habido un fallo";
             }
@@ -91,6 +101,7 @@ it = function(name, score, func) {
     })
 }
 
+// Tests que no puntúan, pero sus fallos son CRITICAL. Es un sanity check antes de los tests de verdad.
 describe("Prechecks", function () {
     it("1: Comprobando que existe el fichero de la entrega...",
        0,
@@ -219,34 +230,51 @@ describe("Funcionales", function(){
     const db_file = path.join(path_assignment, '..', 'quiz.sqlite');
 
     before(async function() {
-        if(error_critical) {
-            return;
-        }
-        // Crear base de datos nueva y poblarla antes de los tests funcionales. por defecto, el servidor coge quiz.sqlite del CWD
-        fs.closeSync(fs.openSync(db_file, 'w'));
 
-        let sequelize_cmd = path.join(path_assignment, "node_modules", ".bin", "sequelize")
-        await exec(`${sequelize_cmd} db:migrate --url "sqlite://${db_file}" --migrations-path ${path.join(path_assignment, "migrations")}`)
-        await exec(`${sequelize_cmd} db:seed:all --url "sqlite://${db_file}" --seeders-path ${path.join(path_assignment, "seeders")}`)
+        let err = null;
+        try{
+            err = "No hemos podido crear la base de datos";
+            // Crear base de datos nueva y poblarla antes de los tests funcionales. por defecto, el servidor coge quiz.sqlite del CWD
+            try{
+                fs.unlinkSync(db_file);
+            } catch(e) {
+                log('No se ha podido borrar la base de datos')
+                // No se ha podido borrar la base de datos. Probablemente no existiera
+            }
+            fs.closeSync(fs.openSync(db_file, 'w'));
 
+            let sequelize_cmd = path.join(path_assignment, "node_modules", ".bin", "sequelize")
+            err = "No hemos podido lanzar las migraciones";
+            await exec(`${sequelize_cmd} db:migrate --url "sqlite://${db_file}" --migrations-path ${path.join(path_assignment, "migrations")}`)
+            err = "No hemos podido lanzar las seeds";
+            await exec(`${sequelize_cmd} db:seed:all --url "sqlite://${db_file}" --seeders-path ${path.join(path_assignment, "seeders")}`)
 
-        server = spawn('node', [path.join(path_assignment, "bin", "www")]);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        browser.site = "http://localhost:3000/"
+            let bin_path = path.join(path_assignment, "bin", "www");
 
-        // Login with user and 
+            err = `Parece que no se puede lanzar el servidor con el comando "node ${bin_path}".`
+            server = spawn('node', [bin_path], {env: {PORT: TEST_PORT}});
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            browser.site = `http://localhost:${TEST_PORT}/`
+            await browser.visit("/");
+            browser.assert.status(200);
 
-        for(var key in users) {
-            let user = users[key];
+            // Login with each user
 
-            await browser.visit("/login/");
-            await browser.fill('username', user.username);
-            await browser.fill('password', user.password);
-            await browser.pressButton('Login');
+            for(var key in users) {
+                let user = users[key];
 
-            user.cookie = browser.getCookie(cookie_name);
-            browser.deleteCookie(cookie_name);
-        }
+                await browser.visit("/login/");
+                await browser.fill('username', user.username);
+                await browser.fill('password', user.password);
+                await browser.pressButton('Login');
+
+                user.cookie = browser.getCookie(cookie_name);
+                browser.deleteCookie(cookie_name);
+            }
+        } catch(e) {
+            log(e);
+			      error_critical = err;
+		    }
     });
 
     async function asUser(username, fn) {
@@ -278,10 +306,10 @@ describe("Funcionales", function(){
     after(async function() {
         if(server) {
             await server.kill();
-        }
-        // Borrar base de datos
-        if(!debug){
-            fs.unlinkSync(db_file);
+            // Borrar base de datos
+            if(!DEBUG){
+                fs.unlinkSync(db_file);
+            }
         }
     })
 
@@ -322,23 +350,24 @@ describe("Funcionales", function(){
        1,
        async function () {
            // Hacer dos partidas, comprobar que el orden de las preguntas es diferente
-           this.msg_err = "Se repite un quiz";
 
            let visited = {}
-           let num = 0;
            browser.deleteCookies();
 
+
            for (var group in groups) {
-
-
-               for(var i=0; i<groups[group].length.length; i++) {
-                   await browser.visit(`/groups/${group}/randomplay`);
+               log("Group: ", group)
+               for(var i=0; i<groups[group].length; i++) {
+                   this.msg_err = "Error al intentar jugar";
+                   let url = `/groups/${group}/randomplay`;
+                   await browser.visit(url);
+                   log('\tCoge pregunta: ', url);
                    browser.assert.status(200)
-                   att = browser.query('form')
+                   att = browser.query('form');
                    if(!visited[att.action]) {
                        visited[att.action] = 1;
-                       num++;
                    } else{
+                       this.msg_err = "Se repite un quiz";
                        throw Error(`Quiz repetido: ${att.action}`)
                        visited[att.action]++;
                    }
@@ -346,7 +375,9 @@ describe("Funcionales", function(){
                    let id = parseInt(tokens[tokens.length-1])
                    let q = questions[id-1]
                    let answer = q.answer
-                   await browser.visit(`/groups/${group}/randomcheck/${id}?answer=${answer}`)
+                   url = `/groups/${group}/randomcheck/${id}?answer=${answer}`;
+                   log('\tComprueba respuesta: ', url);
+                   await browser.visit(url)
                }
            }
        });
@@ -357,23 +388,15 @@ describe("Funcionales", function(){
            this.msg_ok = "Se han respondido todas las preguntas, y el juego termina correctamente";
            this.msg_err = "Se han respondido todas las preguntas, pero el juego continúa";
 
-           await browser.visit("/groups/1/randomplay");
-           att = browser.query('form')
-           if(att){
-               let tokens = att.action.split("/")
-               let id = parseInt(tokens[tokens.length-1])
-               this.msg_err = `${this.msg_err} con la pregunta ${id}`
-               console.log(browser.html());
-               throw Error(this.msg_err)
-           }
-
-           browser.assert.text("section>h1", "End of Group Play: Geography")
+           
+           await browser.visit(`/groups/2/randomplay`); // TODO: Actualizar si se meten más grupos, o usar el diccionario.
+           browser.assert.text("section>h1", "End of Group Play: Math")
        });
 
     it("10: Si se responde bien, continúa el juego",
        0.5,
        async function () {
-           this.msg_err = "No continúa pese a responder bien";
+           browser.deleteCookies();
 
            for(var i=0; i< 10; i++) {
                await browser.visit("/groups/1/randomplay");
@@ -391,6 +414,7 @@ describe("Funcionales", function(){
                att = browser.query('form');
                tokens = att.action.split("/")
                new_id = parseInt(tokens[tokens.length-1])
+               this.msg_err = "No continúa pese a responder bien";
                id.should.not.be.equal(new_id)
                browser.deleteCookies();
            }
