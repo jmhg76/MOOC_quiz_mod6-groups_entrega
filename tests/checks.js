@@ -24,13 +24,18 @@ let error_critical = null;
 var orig_it = it;
 
 // Cambiar si cambia el seeder
+const groups = {
+    "1": [1,2,3,4], // Geography
+    "2":  [5,6],// Math
+};
+
 const questions = [
     {
         question: 'Capital of Italy',
         answer: 'Rome',
     },
     {
-        question: 'Capital of Portugal',
+        question: 'Captal of Portugal',
         answer: 'Lisbon',
     },
     {
@@ -40,8 +45,17 @@ const questions = [
     {
         question: 'Capital of France',
         answer: 'Paris',
+    },
+    {
+        question: '1+1=?',
+        answer: '2',
+    },
+    {
+        question: '5^2=?',
+        answer: '25',
     }
 ]
+
 
 
 it = function(name, score, func) {
@@ -69,7 +83,9 @@ it = function(name, score, func) {
             if (!this.msg_err){
                 this.msg_err =  "Ha habido un fallo";
             }
-            error_critical = this.msg_err;
+            if (critical) {
+                error_critical = this.msg_err;
+            }
             throw(e);
         }
     })
@@ -260,12 +276,13 @@ describe("Funcionales", function(){
     }
 
     after(async function() {
-        if(error_critical) {
-            return;
+        if(server) {
+            await server.kill();
         }
         // Borrar base de datos
-        server.kill();
-        fs.unlinkSync(db_file);
+        if(!debug){
+            fs.unlinkSync(db_file);
+        }
     })
 
     it("6: La lista de grupos incluye un enlace para jugar",
@@ -307,28 +324,30 @@ describe("Funcionales", function(){
            // Hacer dos partidas, comprobar que el orden de las preguntas es diferente
            this.msg_err = "Se repite un quiz";
 
-
            let visited = {}
            let num = 0;
-
            browser.deleteCookies();
 
-           for(var i=0; i<questions.length; i++) {
-               await browser.visit("/groups/1/randomplay");
-               browser.assert.status(200)
-               att = browser.query('form')
-               if(!visited[att.action]) {
-                   visited[att.action] = 1;
-                   num++;
-               } else{
-                   throw Error(`Quiz repetido: ${att.action}`)
-                   visited[att.action]++;
+           for (var group in groups) {
+
+
+               for(var i=0; i<groups[group].length.length; i++) {
+                   await browser.visit(`/groups/${group}/randomplay`);
+                   browser.assert.status(200)
+                   att = browser.query('form')
+                   if(!visited[att.action]) {
+                       visited[att.action] = 1;
+                       num++;
+                   } else{
+                       throw Error(`Quiz repetido: ${att.action}`)
+                       visited[att.action]++;
+                   }
+                   let tokens = att.action.split("/")
+                   let id = parseInt(tokens[tokens.length-1])
+                   let q = questions[id-1]
+                   let answer = q.answer
+                   await browser.visit(`/groups/${group}/randomcheck/${id}?answer=${answer}`)
                }
-               let tokens = att.action.split("/")
-               let id = parseInt(tokens[tokens.length-1])
-               let q = questions[id-1]
-               let answer = q.answer
-               await browser.visit(`/groups/1/randomcheck/${id}?answer=${answer}`)
            }
        });
 
@@ -344,6 +363,7 @@ describe("Funcionales", function(){
                let tokens = att.action.split("/")
                let id = parseInt(tokens[tokens.length-1])
                this.msg_err = `${this.msg_err} con la pregunta ${id}`
+               console.log(browser.html());
                throw Error(this.msg_err)
            }
 
@@ -400,7 +420,7 @@ describe("Funcionales", function(){
            // Repetimos dos veces, para asegurarnos.
            for(var j=0; j<2; j++){
                browser.deleteCookies();
-               for(var i=0; i< questions.length; i++) {
+               for(var i=0; i< groups["1"].length; i++) {
                    await browser.visit("/groups/1/randomplay");
                    browser.assert.status(200);
                    att = browser.query('form');

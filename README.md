@@ -240,13 +240,17 @@ module.exports = {
 ```
 
 
-También debe crear un seeder nuevo, llamado **migrations/YYYYMMDDhhmmss-FillGroupsTable.js** para añadir un grupo que contenga varias preguntas. Su contenido será el sigueinte:
+También debe crear un seeder nuevo, llamado **migrations/YYYYMMDDhhmmss-FillGroupsTable.js** para añadir un grupo para contener las preguntas de geografía existentes, además de un nuevo grupo con preguntas nuevas. Su contenido será el sigueinte:
 
 ```
 'use strict';
 
 module.exports = {
     up: async(queryInterface, Sequelize) => {
+        // Añadimos dos grupos, y varias preguntas nuevas.
+        // Las preguntas existentes van a la categoría Geography.
+        // Las nuevas a Math
+
         // Add geography group
         let now = new Date();
         await queryInterface.bulkInsert('Groups', [
@@ -255,29 +259,58 @@ module.exports = {
                 createdAt: now,
                 updatedAt: now,
             },
+            {
+                name: 'Math',
+                createdAt: now,
+                updatedAt: now,
+            },
         ]);
 
-        const geo = await queryInterface.sequelize.query(
-            "SELECT id from Groups where name='Geography';"
-        );
-        let geo_id = geo[0][0].id;
+        await queryInterface.bulkInsert('Quizzes', [
+            {
+                question: '1+1=?',
+                answer: '2',
+                createdAt: new Date(),
+                updatedAt: new Date()
+            },
+            {
+                question: '5^2=?',
+                answer: '25',
+                createdAt: new Date(),
+                updatedAt: new Date()
+            }
+        ])
 
-        const geo_quizzes = await queryInterface.sequelize.query(
-            "SELECT id from Quizzes where question LIKE 'Capital of%';"
-        );
+        const assignments = {
+            "Capital of%": "Geography",
+            "%=?": "Math"
+        };
 
-        const courseRows = geo_quizzes[0];
+        for (var query in assignments) {
 
-        // Add all "Capital of..." questions to the Geography group
-        for (var q in courseRows) {
-            let q_id = courseRows[q].id;
+            const quizzes = (await queryInterface.sequelize.query(
+                `SELECT id from Quizzes where question LIKE "${query}";`
+            ))[0];
 
-            let query = `INSERT or REPLACE into GroupQuizzes (quizId, groupId, createdAt, updatedAt) values (${q_id}, ${geo_id}, "${now.toISOString()}", "${now.toISOString()}");`
-            await queryInterface.sequelize.query(query);
+            const course_id = (await queryInterface.sequelize.query(
+                `SELECT id from Groups where name='${assignments[query]}';`
+            ))[0][0].id;
+
+            for (var q in quizzes) {
+                let q_id = quizzes[q].id;
+
+                let query = `INSERT or REPLACE into GroupQuizzes (quizId, groupId, createdAt, updatedAt) values (${q_id}, ${course_id}, "${now.toISOString()}", "${now.toISOString()}");`
+
+                await queryInterface.sequelize.query(query);
+            }
         }
     },
 
     down: async(queryInterface, Sequelize) => {
+
+        // remove extra quizzes
+        await queryInterface.bulkDelete('Quizzes', {question: {[Sequelize.Op.like]: '%=?'}}, {});
+
         await queryInterface.bulkDelete('Groups', null, {});
         return queryInterface.bulkDelete('GroupQuizzes', null, {});
     }
