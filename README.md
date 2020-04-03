@@ -87,22 +87,22 @@ GET   /groups/:groupId/randomcheck/:quizId?answer=respuesta ## Comprobar respue
 
 Para desarrollar esta práctica es necesario utilizar la **versión 12 de Node.js**.
 
-El alumno debe clonar el proyecto **Entrega9\_quizgroups** en el ordenador en el que se está trabajando:
+El alumno debe clonar el proyecto **Entrega9\_groups** en el ordenador en el que se está trabajando:
 
 ```sh
-$ git clone https://github.com/CORE-2020/Entrega9_quizgroups
+$ git clone https://github.com/CORE-2020/Entrega9_groups
 ```
 
-El proyecto **Entrega9\_quizgroups** solo contiene los ficheros necesarios para ejecutar el autocorrector. El alumno debe clonar también el proyecto **Quiz** desarrollado en la asignatura en un subdirectorio de **Entrega9\_quizgroups**. El proyecto **Quiz** está disponible en el siguiente repositorio git:
+El proyecto **Entrega9\_groups** solo contiene los ficheros necesarios para ejecutar el autocorrector. El alumno debe clonar también el proyecto **Quiz** desarrollado en la asignatura en un subdirectorio de **Entrega9\_groups**. El proyecto **Quiz** está disponible en el siguiente repositorio git:
 
 ```url
 https://github.com/CORE-UPM/quiz_2020
 ```
 
-Para clonar el proyecto **Quiz** en un subdirectorio dentro del proyecto **Entrega9\_quizgroups**, e instalar las dependencias necesarias, ejecutar:
+Para clonar el proyecto **Quiz** en un subdirectorio dentro del proyecto **Entrega9\_groups**, e instalar las dependencias necesarias, ejecutar:
 
 ```sh
-$ cd Entrega9_quizgroups
+$ cd Entrega9_groups
 $ npm install 
 $ git clone https://github.com/CORE-UPM/quiz_2020
 $ cd quiz_2020
@@ -112,7 +112,7 @@ $ npm install
 Alternativamente, el alumno también puede clonar o copiar la versión del proyecto **Quiz** que modificó en el entrega 8. Suponiendo que la entrega 8 se realizó en un directorio hermano del actual, entonces para clonar el proyecto **Quiz** modificado en esa entrega, e instalar las dependencias, deberían ejecutarse los siguientes comandos:
 
 ```sh
-$ cd Entrega9_quizgroups
+$ cd Entrega9_groups
 $ npm install 
 $ git clone ../Entrega8_randomplay/quiz_2020
 $ cd quiz_2020
@@ -125,7 +125,7 @@ $ npm install
 
 Para realizar esta práctica el alumno debe crear una rama, denominada **entrega9**, en el commit identificado con el tag **5.1_authors** ("*Step 5.1: Authors of Quizzes.*") del proyecto **Quiz**. El último commit de esta rama será la versión de la practica que se evaluará.
 
-Nota: Asegúrese de que se encuentra en el subdirectorio **Entrega9\_quizgroups/quiz_2020** antes de ejecutar los comandos que se describen más abajo.
+Nota: Asegúrese de que se encuentra en el subdirectorio **Entrega9\_groups/quiz_2020** antes de ejecutar los comandos que se describen más abajo.
 
 
 El alumno puede crear la rama **entrega9** ejecutando el siguiente comando:
