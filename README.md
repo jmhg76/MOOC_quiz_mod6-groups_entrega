@@ -6,7 +6,7 @@
 
 # Entrega 9: Quiz Groups
 
-Versión: 16 de Marzo de 2020
+Versión: 2 de Abril de 2020
 
 ## Objetivos
 
@@ -22,7 +22,7 @@ El alumno debe desarrollar:
 
 * Todos los elementos necesarios (CRUD) para manejar los grupos, es decir, poder listar los grupos existentes, crear nuevos grupos, editarlos y borrarlos.
 * Añadir la funcionalidad **Random Play** desarrollada en la entrega 8 a los grupos, es decir, se jugaría a contestar solo a los quizzes de un grupo, que se presentarían de forma aleatoria y sin repeticiones.
-* Añadir soporte de roles para que los únicos usuarios que pueden crear, editar y borrar los quizzes sean los administradores. El resto de usuarios solo pueden consultar y jugar a los grupos.
+* Añadir soporte de roles para que los únicos usuarios que pueden crear, editar y borrar los grupos sean los administradores. El resto de usuarios solo pueden consultar y jugar a los grupos.
 
 
 Para desarrollar esta practica el alumno debe completar estas tareas:
@@ -36,6 +36,8 @@ Para desarrollar esta practica el alumno debe completar estas tareas:
     * Definir una relación NaN entre los modelos **Group** y **Quiz**: un grupo contiene varios quizzes, y un quiz puede pertenecer a varios grupos.
 
     * Implementar las migraciones que crean la tabla **Groups** y la tabla join **GroupQuizzes**.
+
+    * Implementar un fichero seeder que cree varios grupos y los asocie con los quizzes relacionados.
 
 * Tarea 4: Definir las rutas necesarias:
 
@@ -64,14 +66,14 @@ GET   /groups/:groupId/randomcheck/:quizId?answer=respuesta ## Comprobar respue
 
 * Tarea 6: Desarrollar el controlador de grupos con los métodos y middlewares necesarios:
 
-    * **load**: autocarga del parámetro :groupId de las rutas.
+    * **load**: autocarga del parámetro **:groupId** de las rutas.
     * **index**: middleware que prepara el listado de grupos.
     * **new**: middleware que crea el formulario de creación de un grupo.
-    * **create**: middleware que crea el grupo solicitado por el formulario de new.
+    * **create**: middleware que crea el grupo solicitado por el formulario **new**.
     * **edit**: middleware que crea el formulario de edición de un grupo.
-    * **update**: middleware que actualiza el grupo con los cambios solicitados por el formulario de edit.
+    * **update**: middleware que actualiza el grupo con los cambios solicitados por el formulario **edit**.
     * **destroy**: middleware para eliminar un grupo.
-    * **randomPlay**: jugar a una nueva pregunta.
+    * **randomPlay**: jugar a contestar a un nuevo quiz de un grupo.
     * **randomCheck**: comprobar una respuesta.
 
 * Tarea 7: Soportar dos roles:
@@ -88,7 +90,7 @@ Para desarrollar esta práctica es necesario utilizar la **versión 12 de Node.j
 El alumno debe clonar el proyecto **Entrega9\_quizgroups** en el ordenador en el que se está trabajando:
 
 ```sh
-$ git clone https://github.com/CORE-2020/Entrega9\_quizgroups
+$ git clone https://github.com/CORE-2020/Entrega9_quizgroups
 ```
 
 El proyecto **Entrega9\_quizgroups** solo contiene los ficheros necesarios para ejecutar el autocorrector. El alumno debe clonar también el proyecto **Quiz** desarrollado en la asignatura en un subdirectorio de **Entrega9\_quizgroups**. El proyecto **Quiz** está disponible en el siguiente repositorio git:
@@ -107,7 +109,15 @@ $ cd quiz_2020
 $ npm install 
 ```
 
-Alternativamente, el alumno también puede clonar o copiar la versión del proyecto **Quiz** que modificó en el entrega 8.
+Alternativamente, el alumno también puede clonar o copiar la versión del proyecto **Quiz** que modificó en el entrega 8. Suponiendo que la entrega 8 se realizó en un directorio hermano del actual, entonces para clonar el proyecto **Quiz** modificado en esa entrega, e instalar las dependencias, deberían ejecutarse los siguientes comandos:
+
+```sh
+$ cd Entrega9_quizgroups
+$ npm install 
+$ git clone ../Entrega8_randomplay/quiz_2020
+$ cd quiz_2020
+$ npm install 
+```
 
 ## Tareas
 
@@ -141,7 +151,7 @@ El alumno tambien puede crear ramas y cambiar de rama usando las facilidades que
 
 ### Tarea 2 - Actualizar la barra de navegación
 
-En esta tarea el alumno debe añadir un botón, llamado **Groups**, en la barra de navegación. Hay que pulsar este botón para obtener un listado con todos los grupos existentes.
+En esta tarea el alumno debe añadir un botón, llamado **Groups**, en la barra de navegación. Al pulsar este botón se debe presentar un listado con todos los grupos existentes.
 
 Para ello hay que añadir un nuevo enlace en la barra de navegación implementada en **views/layout.ejs**. El nombre del enlace debe ser **Groups**, y al pulsarlo debe enviar la solicitud:
 
@@ -149,11 +159,20 @@ Para ello hay que añadir un nuevo enlace en la barra de navegación implementad
 GET /groups
 ```
 
+Para comprobar que se ha creado bien este botón, aplique las migraciones, el seeder, lance el servidor, y conéctese con un navegador a la URL **http://localhost:3000**. En la barra de navegación debe aparecer el botón **Groups**, aunque de momento no funciona. Para ello debe ejecutar:
+
+```sh
+$ npm run migrate
+$ npm run seed
+$ npm start
+$ Lanzar Chrome y visitar http://localhost:3000
+```
+ 
 ### Tarea 3: Definir el modelo Group.
 
-El alumno tiene que definir el nuevo modelo para los grupos. El modelo debe llamarse **Group**, y tener un campo llamado **name** para guardar el nombre del grupo. El campo **name** debe ser de tipo un **STRING**, no puede repetirse (**unique: true**), y no puede dejarse vacío (**validate: {notEmpty: {msg: "Group name must not be empty"}}**). La definición del modelo **Group** debe hacerse en el fichero **models/group.js**.
+El alumno tiene que definir el nuevo modelo para los grupos. El modelo debe llamarse **Group**, y tener un campo llamado **name** para guardar el nombre del grupo. El campo **name** debe ser de tipo **STRING**, no puede repetirse (**unique: true**), y no puede dejarse vacío (**validate: {notEmpty: {msg: "Group name must not be empty"}}**). La definición del modelo **Group** debe hacerse en el fichero **models/group.js**.
 
-El alumno debe editar el fichero **models/index.js** para importar la definición del modelo **Group**. También debe definir la relación **NaN** entre los grupos y los quizzes usando el metodo **belongsToMany**. Use como alias los valores **"groups"** y **"quizzes"**, use **"GroupQuizzes"** como nombre de la tabla join, los nombres **"quizId"** y **"groupId"** para las claves externas. La definición de la relación debería ser algo parecido a:
+El alumno debe editar el fichero **models/index.js** para importar la definición del modelo **Group**. También debe definir la relación **NaN** entre los grupos y los quizzes usando el metodo **belongsToMany**. Use como alias los valores **"groups"** y **"quizzes"**, use **"GroupQuizzes"** como nombre de la tabla join, y use los nombres **"quizId"** y **"groupId"** para las claves externas. La definición de la relación debería ser algo parecido a:
 
 ```
 Quiz.belongsToMany(Group, {
@@ -183,7 +202,7 @@ name: {
 },
 ```
 
-La migración que crea la tabla join **GroupQuizzes** llamarse **migrations/YYYYMMDDhhmmss-CreateGroupQuizzesTable.js**, donde YYYYMMDDhhmmss es la fecha en la que se creó el fichero. Recuerde que es una tabla join, que no se usa como modelo, y no tiene el campo **id**. Los campos de esta tabla son **quizId**, **groupId**, **createdAt** y **updatedAt**. La clave primaria de esta tabla es una combinación de los campos **quizId** y **groupId**. Hay que definir adecuadamente estos campos para que al borrar un quiz o un grupo, se eliminen los datos relacionads de esta tabla. Teniendo en cuenta estos detalles, el contenido de este fichero de migración sería parecido a lo siguiente:
+La migración que crea la tabla join **GroupQuizzes** llamarse **migrations/YYYYMMDDhhmmss-CreateGroupQuizzesTable.js**, donde YYYYMMDDhhmmss es la fecha en la que se creó el fichero. Recuerde que es una tabla join, que no se usa como modelo, y por tanto, no debe tener el campo **id**. Los campos que debe tener esta tabla son **quizId**, **groupId**, **createdAt** y **updatedAt**. La clave primaria de esta tabla es una combinación de los campos **quizId** y **groupId**. Hay que definir adecuadamente estos campos para que al borrar un quiz o un grupo, se eliminen los datos relacionados de esta tabla. Teniendo en cuenta estos detalles, el contenido de este fichero de migración sería parecido a lo siguiente:
 
 ```
 'use strict';
@@ -240,7 +259,7 @@ module.exports = {
 ```
 
 
-También debe crear un seeder nuevo, llamado **migrations/YYYYMMDDhhmmss-FillGroupsTable.js** para añadir un grupo para contener las preguntas de geografía existentes, además de un nuevo grupo con preguntas nuevas. Su contenido será el sigueinte:
+También debe crear un seeder nuevo, llamado **migrations/20200402120800-FillGroupsTable.js** para crear un grupo llamado **Geography** que contendrá los quizzes de geografía existentes, y un grupo llamado **Math** con varios quizzes sobre matemáticas. Su contenido será el siguiente:
 
 ```
 'use strict';
@@ -317,9 +336,31 @@ module.exports = {
 };
 ```
 
+Para aplicar la nueva migración y el nuevo seeder, lo más cómodo es borrar el fichero **quiz.sqlite** y crearlo otra vez aplicando todas las migraciones y seeders. Para ello se deben ejecutar los comandos:
+
+```sh
+$ rm quiz.sqlite      // en Unix
+$ del quiz.sqlite     // en Windows
+$ npm run migrate
+$ npm run seed
+```
+
+Si no quiere borrar su base de datos, puede aplicar las migraciones pendientes y el nuevo fichero seeder ejecutando estos comandos:
+
+```sh
+$ npm run migrate
+$ npx sequelize db:seed --url DATABASEURL --seed SEEDFILENAME
+```
+
+donde debe sustituir *DATABASEURL* por la URL absoluta del fichero **quiz.sqlite**, y sustituir *SEEDFILENAME* por el nombre del fichero seed a ejecutar. Después de realizar estas sustituciones, el segundo comando será parecido a esto:
+
+```sh
+$ npx sequelize db:seed --url sqlite://$(pwd)/quiz.sqlite --seed 20200402120800-FillGroupsTable.js
+```
+
 ### Tarea 4: Definir las rutas necesarias:
 
-En esta tarea el alumno debe editar el fichero **routes/index.js** para añadir las definiciones de las rutas CRUD para manejar los grupos, y las de las rutas que permiten jugar.
+En esta tarea el alumno debe editar el fichero **routes/index.js** para añadir las definiciones de las rutas CRUD para manejar los grupos, y las definiciones de las rutas que permiten jugar.
 
 Las rutas CRUD son parecidas a las existentes para los quizzes, pero sustituyendo en ciertos sitios **"quizzes"** por **"groups"**, **":quizId"** por **":groupId"**, **"quizController"** por **"groupController"**, etc. Atención: no se deben usar los middlewares **quizController.adminOrAuthorRequired** ni **sessionController.loginRequired** en las rutas de los grupos. De momento todo el mundo debe poder consultar, crear, editar y borrar los grupos.
 
@@ -371,7 +412,7 @@ router.get(
 
 Esta entrega necesita seis vistas.
 
-La vista **views/groups/index.ejs** muestra un listado con todos los grupos, permite editar y borrar los grupos existentes, y crear nuevos grupos. El método **res.render** debe proporcionar a esta vista un array con los grupos descargados de la base de datos en un parametro llamado **groups**. Una versión incompleta de esta vista, excluyendo la parte de los roles de usuario, podría ser la siguiente:
+La vista **views/groups/index.ejs** muestra un listado con todos los grupos, permite editar y borrar los grupos existentes, y crear nuevos grupos. El método **res.render** debe proporcionar a esta vista un array con los grupos descargados de la base de datos en un parámetro llamado **groups**. Una versión incompleta de esta vista, excluyendo la parte de los roles de usuario, podría ser la siguiente:
 
 ```
 <h1>Groups:</h1>
@@ -422,7 +463,7 @@ La vista **views/groups/new.ejs** presenta un formulario para crear un grupo nue
 </form>
 ```
 
-La vista **views/groups/edit.ejs** presenta un formulario para editar el nombre de un grupo y seleccionar los quizzes que pertenecen a él. El método **res.render** debe proporcionar tres parámetros a esta vista: un parametro llamado **group** con el objeto grupo a editar, un parámetro llamado **allQuizzes** conteniendo un array con todos los quizzes existentes en la base de datos, y un parámetro llamado **groupQuizzesIds** conteniendo un array con los ids de los quizzes que pertencen a grupo. El código de esta vista es el siguiente:
+La vista **views/groups/edit.ejs** presenta un formulario para editar el nombre de un grupo y seleccionar los quizzes que pertenecen a él. El método **res.render** debe proporcionar tres parámetros a esta vista: un parámetro llamado **group** con el objeto grupo a editar, un parámetro llamado **allQuizzes** conteniendo un array con todos los quizzes existentes en la base de datos, y un parámetro llamado **groupQuizzesIds** conteniendo un array con los ids de los quizzes que pertenecen al grupo. El código de esta vista es el siguiente:
 
 ```
 <h1>
@@ -474,8 +515,9 @@ por esta otra:
 app.use(express.urlencoded({ extended: true }));
 ```
 
-
-Las vistas **views/groups/random\_play.ejs**, **views/groups/random\_nomore.ejs** y **views/groups/random\_result.ejs** son parecidas a las usadas en la práctica **Random Play**. Se diferencian en que **res.render** pasa un parámetro adicional llamado **group** con el objeto grupo con el que se está jugando. 
+Este cambio le indica al middleware **express.urlencoded** que los datos enviados por el formulario usan la sintaxis extendida de arrays. El middleware procesará los datos recibidos teniendo en cuenta esta sintaxis, y los pasará en un array asignado a **req.body.quizzesIds**.
+ 
+Las vistas **views/groups/random\_play.ejs**, **views/groups/random\_nomore.ejs** y **views/groups/random\_result.ejs** son parecidas a las usadas en la Entrega 8 **Random Play**. Se diferencian en que **res.render** pasa un parámetro adicional, llamado **group**, con el objeto grupo con el que se está jugando. 
 
 El código de la vista **views/groups/random\_play.ejs** es el siguiente:
 
@@ -567,7 +609,7 @@ Debe implementar y exportar los siguientes middlewares siguiendo los detalles pr
 
 Middleware para autocargar el parámetro **:groupId** de las rutas. Busca el grupo en la base de datos y los guarda en **req.load.group**. 
 
-Este middleware es muy similar a los desarrollados en otros controladores.
+Este middleware es muy similar a los desarrollados en otros controladores (*user*, *quiz*).
 
 
 #### Middleware index(req, res, next)
@@ -600,7 +642,7 @@ res.render('groups/new', {group});
 
 #### Middleware create(req, res, next)
 
-Middleware para crear el grupo enviado por el formulario de new.
+Middleware para crear un grupo con el nombre enviado por el formulario **new**.
 
 Este middleware debe construir un objeto Group con los datos (**name**) recibidos del formulario, y salvarlo en la base de datos. Si hay éxito debe hacer una redirección a la vista **index**. Si hay errores de validación debe mostrar otra vez el formulario.
 
@@ -611,7 +653,7 @@ El código de este middleware es muy parecido al de creación de quizzes.
 
 Middleware para crear el formulario de edición de un grupo.
 
-Este middleware debe pasar a la vista de edición tres valores: **group** que es el objeto grupo a editar, **allQuizzes** que es un array con todos los quizzes existentes en la base de datos, y **groupQuizzesIds** que es un array con los ids de los quizzes que pertencen al grupo. 
+Este middleware debe pasar a la vista de edición tres valores: **group** que es el objeto grupo a editar, **allQuizzes** que es un array con todos los quizzes existentes en la base de datos, y **groupQuizzesIds** que es un array con los ids de los quizzes que pertencen actualmente al grupo. 
 
 ```
 const {group} = req.load;
@@ -655,15 +697,22 @@ app.use(express.urlencoded({ extended: true }));
 
 #### Middleware destroy(req, res, next)
 
-Middleware para eliminar un grupo. Es muy parecido a los ya existentes.
+Middleware para eliminar un grupo. Es muy parecido a los ya existentes para *user* o *quiz*.
 
 
 #### Middlewares randomPlay(req, res, next) y randomCheck(req, res, next)
 
 Parecidos a los de la entrega 8.
 
-El principal cambio consiste en que dado un grupo, se debe guardar el array de preguntas ya contestadas, y el **id** del último quiz preguntado, en sitios diferentes de la session. Esto permite que un usuario pueda jugar a varios grupos a la vez sin que se mezclen los datos de cada juego. Es decir, el usuario podría pulsar en el nombre de un grupo para empezar a jugar, luego pulsar en otro grupo para jugar otro juego paralelo. Si el usuario vuelve a pulsar sobre el grupo inicial, continuaría con ese juego en el punto donde lo dejó.
+El principal cambio consiste en que para cada grupo al que se esté jugando, se debe guardar su array de preguntas ya contestadas, y el **id** de su último quiz preguntado, en un sitio diferente de la session. Esto permite que un usuario pueda jugar a varios grupos a la vez sin que se mezclen los datos de cada juego. Es decir, el usuario podría pulsar en el nombre de un grupo para empezar a jugar, luego pulsar en otro grupo para jugar otro juego paralelo. Si el usuario vuelve a pulsar sobre el grupo inicial, continuaría con ese juego en el punto donde lo dejó.
 
+
+En este punto de la entrega, se puede comprobar si lo desarrollado en las tareas anteriores funciona correctamente. Lance el servidor, y conéctese con un navegador a la URL **http://localhost:3000**. 
+
+```sh
+$ npm start
+$ Lanzar Chrome y visitar http://localhost:3000
+```
 
 ### Tarea 7: Soportar dos roles: administrador y normal
 
@@ -681,7 +730,7 @@ sessionController.loginRequired,
 sessionController.adminRequired,
 ```
 
-El segundo cambio consiste modificar las vistas EJS para que el código HTML que muestra los botones de crear, editar y destruir los grupos, solo se muestre a los usuarios logueados que sean administador. Para ello, se  debe proteger el codigo HTML a no mostrar con los siguientes condicionales de EJS:
+El segundo cambio consiste modificar las vistas EJS para que el código HTML que muestra los botones de crear, editar y destruir los grupos, solo se muestre a los usuarios logueados que sean administadores. Para ello, se  debe proteger el codigo HTML a no mostrar con los siguientes condicionales de EJS:
 
 ```
 <% if (locals.loginUser && locals.loginUser.isAdmin) { %>
@@ -690,25 +739,19 @@ El segundo cambio consiste modificar las vistas EJS para que el código HTML que
 ```
 
 
+
 ### A jugar
 
-El alumno debe probar el correcto funcionamiento de la entrega lanzando el servidor con el comando **"npm super"**, y visitando la URL **http://localhost:3000** desde un navegador. Compruebe que la creacion, edicion y borrado de grupos solo se pueden hacer entrando como administrador, y que dunciona correctemente. Comrpuebe que todo el mundo puede jugar a los grupos, que se puede jugar a varios grupos simultaneamente, etc...
+El alumno debe comprobar que la entrega funciona correctamente lanzando el servidor con el comando **"npm start"**, y visitando la URL **http://localhost:3000** desde un navegador. Compruebe que la creación, edición y borrado de grupos solo se pueden hacer entrando como administrador, y que funciona correctemente. Compruebe que todo el mundo puede jugar a los grupos, que se puede jugar a varios grupos simultaneamente, etc...
 
-Antes de lanzar el servidor debe aplicar las migraciones pendientes ejecutando:
+Si es la primera vez que va a correr el servidor, recuerde que debe aplicar las migraciones y seeders ejecutando:
 
 ```sh
 $ npm run migrate 
-```
-
-Nota: o **migrate_win** para Windows.
-
-Si no ha ejecutado nunca los seeders, ejecute:
-
-```sh
 $ npm run seed 
 ```
 
-Nota: o **seed_win** para Windows.
+Nota: *migrate\_win* y *seed\_win* para Windows.
 
 ### Congelar los cambios
 
@@ -729,6 +772,7 @@ $ git add models/group.js
 $ git add controllers/group.js
 $ git add migrations/??????????????-CreateGroupsTable.js
 $ git add migrations/??????????????-CreateGroupQuizzessTable.js
+$ git add seeders/??????????????-FillGroupsTable.js
 $ git commit
 ```
 
@@ -739,9 +783,9 @@ Para ayudar al desarrollo, se provee una herramienta de autocorrección que prue
 Para instalar y hacer uso de la herramienta de autocorrección en el ordenador local, ejecuta los siguientes comandos en el directorio raíz del proyecto, es decir, en el directorio padre del directorio **quiz_express**:
 
 ```
-$ npm install -g autocorector    ## Instala el programa de test
-$ autocorector                   ## Pasa los tests al fichero a entregar
-............................     ## en el directorio de trabajo
+$ sudo npm install -g autocorector    ## Instala el programa de test
+$ autocorector                        ## Pasa los tests al fichero a entregar
+............................           ## en el directorio de trabajo
 ... (resultado de los tests)
 ```
 
@@ -776,10 +820,9 @@ En el enlace **https://www.npmjs.com/package/autocorector** se proveen instrucci
 
 **RÚBRICA**: Se puntuará el ejercicio a corregir sumando el % indicado a la nota total si la parte indicada es correcta:
 
-- **50%:** Los grupos se crean, editan y borran solo por administradores.
-- **50%:** El juego de los grupos funciona bien.
+- **30%:** Los grupos se crean, editan y borran solo por administradores.
+- **70%:** El juego de los grupos funciona bien.
 
 
 
 Si pasa todos los tests se dará la máxima puntuación.
-

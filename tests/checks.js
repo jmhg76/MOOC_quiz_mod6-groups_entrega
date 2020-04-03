@@ -67,7 +67,10 @@ function log() {
 
 // Monkey-patching del método it para no repetir código, y manejar mejor los errores en el desarrollo del test.
 var orig_it = it;
+var num_tests = 1;
 it = function(name, score, func) {
+    name = `${num_tests}: ${name}`;
+    num_tests++;
     return orig_it(name, async function () {
         let critical = score < 0;
         this.score = critical? 0 :score;
@@ -103,11 +106,11 @@ it = function(name, score, func) {
 
 // Tests que no puntúan, pero sus fallos son CRITICAL. Es un sanity check antes de los tests de verdad.
 describe("Prechecks", function () {
-    it("1: Comprobando que existe el fichero de la entrega...",
+    it("Comprobando que existe el directorio de la entrega...",
        0,
        async function () {
-           this.msg_ok = `Encontrado el fichero '${path_assignment}'`;
-           this.msg_err = `No se encontró el fichero '${path_assignment}'`;
+           this.msg_ok = `Encontrado el directorio '${path_assignment}'`;
+           this.msg_err = `No se encontró el directorio '${path_assignment}'`;
            const fileexists = await Utils.checkFileExists(path_assignment);
 
            if (!fileexists) {
@@ -116,7 +119,7 @@ describe("Prechecks", function () {
            fileexists.should.be.equal(true);
        });
 
-    it("1: Comprobando que existe la rama entrega9",
+    it("Comprobando que existe la rama entrega9",
        0,
        async function () {
            this.msg_err = "No se encuentra la rama entrega9"
@@ -124,16 +127,7 @@ describe("Prechecks", function () {
            commit = await repo.getBranchCommit("entrega9")
        });
 
-	it(`2: Comprobar que se han añadido plantillas express-partials`,
-     0,
-     async function () {
-		this.msg_ok = 'Se incluye layout.ejs';
-		this.msg_err = 'No se ha encontrado views/layout.ejs';
-		this.score = 0;
-		fs.existsSync(path.join(path_assignment, "views", "layout.ejs")).should.be.equal(true);
-	});
-
-	it(`3: Comprobar que la migración y el seeder existen`,
+	it(`Comprobar que la migración y el seeder existen`,
      0,
      async function () {
 
@@ -149,7 +143,7 @@ describe("Prechecks", function () {
          }
 	});
 
-	it(`4: Comprobar que los controladores existen`,
+	it(`Comprobar que los controladores existen`,
      0,
      async function () {
 		this.msg_err = "No se incluye el controlador de groups";
@@ -160,11 +154,10 @@ describe("Prechecks", function () {
 });
 
 describe("Comprobación de ficheros", function () {
-	it(`5: Comprobar que las plantillas express-partials tienen los componentes adecuados`,
-     1,
+	it(`Comprobar que las plantillas express-partials tienen los componentes adecuados`,
+     0,
      async function () {
-		this.msg_ok = 'Se incluyen todos los elementos necesarios en la plantilla';
-		this.msg_err = 'No se ha encontrado todos los elementos necesarios';
+		this.msg_err = 'No se ha encontrado todos los elementos necesarios. Revisa las plantillas.';
          let checks = {
              "layout.ejs": {
                  true: [/<%- body %>/g, /<header/, /<\/header>/, /<nav/, /<\/nav>/, /<footer/, /<\/footer>/]
@@ -190,13 +183,15 @@ describe("Comprobación de ficheros", function () {
          }
 
 		for (fpath in checks) {
-			let templ = fs.readFileSync(path.join(path_assignment, "views", fpath), "utf8");
+      let file = path.join(path_assignment, "views", fpath);
+      this.msg_err = 'No se puede leer el fichero ${file}.';
+      let templ = fs.readFileSync(file, "utf8");
 			for(status in checks[fpath]) {
 				elements = checks[fpath][status]
 				for(var elem in elements){
 					let e = elements[elem];
 					if (status) {
-						this.msg_err = `${fpath} no incluye ${e}`;
+						this.msg_err = `${fpath} no incluye algún elemento importante. Falla con la expresión: ${e}`;
 					} else {
 						this.msg_err = `${fpath} incluye ${e}, pero debería haberse borrado`;
 					}
@@ -222,7 +217,7 @@ describe("Funcionales", function(){
             password: '1234',
             admin: true,
         },
-    ]
+    ];
     const cookie_name = 'connect.sid';
     var cookies = {};
 
@@ -313,16 +308,17 @@ describe("Funcionales", function(){
         }
     })
 
-    it("6: La lista de grupos incluye un enlace para jugar",
-       0.5,
+    it("La lista de grupos incluye un enlace para jugar",
+       1,
        async function(){ 
            await browser.visit("/groups/");
            browser.assert.status(200)
            browser.assert.text('a[href="/groups/1/randomplay"]', "Geography")
+           browser.assert.text('a[href="/groups/2/randomplay"]', "Math")
        });
 
-    it("7: Los quizzes se eligen aleatoriamente",
-       0.5,
+    it("Los quizzes se eligen aleatoriamente",
+       1,
        async function () {
            // Lanzamos 10 intentos de partida, sin cookies. Debería haber más de 2 preguntas diferentes
            this.msg_err = `Se repite el orden de los quizzes`;
@@ -343,10 +339,10 @@ describe("Funcionales", function(){
                browser.deleteCookies();
            }
 
-           num.should.be.above(1)
+           num.should.be.above(1);
        });
 
-    it("8: No se repiten los quizzes",
+    it("No se repiten los quizzes",
        1,
        async function () {
            // Hacer dos partidas, comprobar que el orden de las preguntas es diferente
@@ -361,14 +357,13 @@ describe("Funcionales", function(){
                    this.msg_err = "Error al intentar jugar";
                    let url = `/groups/${group}/randomplay`;
                    await browser.visit(url);
-                   log('\tCoge pregunta: ', url);
                    browser.assert.status(200)
                    att = browser.query('form');
                    if(!visited[att.action]) {
                        visited[att.action] = 1;
                    } else{
-                       this.msg_err = "Se repite un quiz";
-                       throw Error(`Quiz repetido: ${att.action}`)
+                       this.msg_err = `Quiz repetido: ${att.action}`;
+                       throw Error(this.msg_err)
                        visited[att.action]++;
                    }
                    let tokens = att.action.split("/")
@@ -376,25 +371,22 @@ describe("Funcionales", function(){
                    let q = questions[id-1]
                    let answer = q.answer
                    url = `/groups/${group}/randomcheck/${id}?answer=${answer}`;
-                   log('\tComprueba respuesta: ', url);
                    await browser.visit(url)
                }
            }
        });
 
-    it("9: Se termina si no quedan más quizzes",
-       0.5,
+    it("Se termina si no quedan más quizzes",
+       1,
        async function () {
-           this.msg_ok = "Se han respondido todas las preguntas, y el juego termina correctamente";
            this.msg_err = "Se han respondido todas las preguntas, pero el juego continúa";
 
-           
            await browser.visit(`/groups/2/randomplay`); // TODO: Actualizar si se meten más grupos, o usar el diccionario.
            browser.assert.text("section>h1", "End of Group Play: Math")
        });
 
-    it("10: Si se responde bien, continúa el juego",
-       0.5,
+    it("Si se responde bien, continúa el juego",
+       1,
        async function () {
            browser.deleteCookies();
 
@@ -420,8 +412,8 @@ describe("Funcionales", function(){
            }
        });
 
-    it("11: Al fallar se termina el juego",
-       0.5,
+    it("Al fallar se termina el juego",
+       1,
        async function () {
            this.msg_err = "Al fallar hay un error";
 
@@ -436,24 +428,24 @@ describe("Funcionales", function(){
            browser.text().includes("You have failed").should.equal(true)
        });
 
-    it("12: Se puntúa bien el número de aciertos",
-       0.5,
+    it("Se puntúa bien el número de aciertos",
+       1,
        async function () {
-           this.msg_err = "No continúa pese a responder bien";
 
            // Repetimos dos veces, para asegurarnos.
            for(var j=0; j<2; j++){
                browser.deleteCookies();
                for(var i=0; i< groups["1"].length; i++) {
+                   this.msg_err = "Hay un error con la petición a randomplay";
                    await browser.visit("/groups/1/randomplay");
                    browser.assert.status(200);
                    att = browser.query('form');
                    let tokens = att.action.split("/");
                    const id = parseInt(tokens[tokens.length-1])
                    let question = questions[id-1]
-                   let answer = question.answer
-                   await browser.visit(`/groups/1/randomcheck/${id}?answer=${answer}`)
+                   let answer = question.answer;
                    this.msg_err = `No acepta la respuesta correcta para ${question}`
+                   await browser.visit(`/groups/1/randomcheck/${id}?answer=${answer}`)
                    browser.assert.status(200)
                    const body = browser.text()
                    let num_aciertos = i+1
@@ -464,8 +456,8 @@ describe("Funcionales", function(){
        });
 
 
-    it("13: La lista de grupos sólo muestra opciones de edición al admin",
-       2,
+    it("La lista de grupos sólo muestra opciones de edición al admin",
+       0.75,
        async function() {
            var ctx = this;
            return allUsers(async function(user) {
@@ -479,8 +471,8 @@ describe("Funcionales", function(){
            });
        });
 
-    it("14: Sólo un admin puede crear nuevos grupos",
-       1,
+    it("Sólo un admin puede crear nuevos grupos",
+       0.75,
        async function() {
            var ctx = this;
            return allUsers(async function(user) {
@@ -501,8 +493,8 @@ describe("Funcionales", function(){
            });
        });
 
-    it("15: Sólo un admin puede editar un grupo",
-       1,
+    it("Sólo un admin puede editar un grupo",
+       0.75,
        async function() {
            var ctx = this;
            return allUsers(async function(user) {
@@ -521,8 +513,8 @@ describe("Funcionales", function(){
            });
        });
 
-    it("16: Sólo un admin puede eliminar un grupo",
-       1,
+    it("Sólo un admin puede eliminar un grupo",
+       0.75,
        async function() {
            var ctx = this;
            return allUsers(async function(user) {
