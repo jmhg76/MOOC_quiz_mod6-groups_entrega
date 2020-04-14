@@ -259,7 +259,7 @@ module.exports = {
 ```
 
 
-También debe crear un seeder nuevo, llamado **migrations/20200402120800-FillGroupsTable.js** para crear un grupo llamado **Geography** que contendrá los quizzes de geografía existentes, y un grupo llamado **Math** con varios quizzes sobre matemáticas. Su contenido será el siguiente:
+También debe crear un seeder nuevo, llamado **seeders/20200402120800-FillGroupsTable.js** para crear un grupo llamado **Geography** que contendrá los quizzes de geografía existentes, y un grupo llamado **Math** con varios quizzes sobre matemáticas. Su contenido será el siguiente:
 
 ```
 'use strict';
