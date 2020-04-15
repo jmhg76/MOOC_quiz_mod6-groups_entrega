@@ -393,12 +393,12 @@ describe("Funcionales", function(){
                await browser.visit(`/groups/1/randomcheck/${id}?answer=${answer}`);
                this.msg_err = `No acepta la respuesta correcta para ${question}`;
                browser.assert.status(200);
-               this.msg_err = `Tras una respuesta correcta, se repite la pregunta`;
+               this.msg_err = `Se acepta la respuesta, pero hay un error al continuar`;
                await browser.visit("/groups/1/randomplay");
                att = browser.query('form');
                tokens = att.action.split("/");
                let new_id = parseInt(tokens[tokens.length-1]);
-               this.msg_err = "No continúa pese a responder bien";
+               this.msg_err = "Se repite la pregunta";
                id.should.not.be.equal(new_id);
                browser.deleteCookies();
            }
