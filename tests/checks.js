@@ -9,12 +9,11 @@ const fs = require("fs");
 const process = require("process");
 var Git = require("nodegit");
 
-const TEST_PORT = 1337;
-
 
 const DEBUG =  typeof process.env.DEBUG !== "undefined";
 const WAIT =  typeof process.env.WAIT !== "undefined"?parseInt(process.env.WAIT):50000;
 const TIMEOUT =  typeof process.env.TIMEOUT !== "undefined"?parseInt(process.env.TIMEOUT):2000;
+const TEST_PORT =  typeof process.env.TEST_PORT !== "undefined"?parseInt(process.env.TEST_PORT):3000;
 
 const FILTER = new RegExp(process.env.TESTFILTER, "i");
 
