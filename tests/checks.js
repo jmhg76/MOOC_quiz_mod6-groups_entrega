@@ -256,6 +256,11 @@ Cuando preguntes en el foro, asegúrate de incluir esa información para que pod
 
                 err = `Parece que no se puede lanzar el servidor con el comando "node ${bin_path}".`;
                 server = spawn('node', [bin_path], {env: {PORT: TEST_PORT}});
+
+		server.stdout.on('data', function(data) {
+		        //console.log('\t\tServer: ', data.toString()); 
+		});
+
                 await new Promise(resolve => setTimeout(resolve, TIMEOUT));
                 browser.site = `http://localhost:${TEST_PORT}/`;
                 await browser.visit("/");
@@ -321,7 +326,9 @@ Cuando preguntes en el foro, asegúrate de incluir esa información para que pod
            async function(){ 
                await browser.visit("/groups/");
                browser.assert.status(200);
+               this.msg_err = "No se muestra enlace para Geography";
                browser.assert.text('a[href="/groups/1/randomplay"]', "Geography");
+               this.msg_err = "No se muestra enlace para Math";
                browser.assert.text('a[href="/groups/2/randomplay"]', "Math");
            });
 
@@ -362,7 +369,7 @@ Cuando preguntes en el foro, asegúrate de incluir esa información para que pod
                for (var group in groups) {
                    log("Group: ", group);
                    for(var i=0; i<groups[group].length; i++) {
-                       this.msg_err = "Error al intentar jugar";
+                       this.msg_err = `Error al intentar jugar en el grupo ${group}`;
                        let url = `/groups/${group}/randomplay`;
                        await browser.visit(url);
                        browser.assert.status(200);
