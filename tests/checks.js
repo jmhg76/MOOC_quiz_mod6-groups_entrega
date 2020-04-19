@@ -146,7 +146,7 @@ Cuando preguntes en el foro, asegúrate de incluir esa información para que pod
                    ['seeders', '-FillGroupsTable.js'],
                ];
                for (var [folder, suffix] of files) {
-                   this.msg_er = `La carpeta ${folder} no tiene un fichero acabado en ${suffix}`;
+                   this.msg_err = `La carpeta ${folder} no tiene un fichero acabado en ${suffix}`;
                    let file = fs.readdirSync(path.join(path_assignment, folder)).filter(fn => fn.endsWith(suffix));
                    (file.length).should.be.equal(1);
                }
