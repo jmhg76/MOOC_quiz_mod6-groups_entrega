@@ -10,6 +10,7 @@ const process = require("process");
 var Git = require("nodegit");
 
 
+const LOG_SERVER =  typeof process.env.LOG_SERVER !== "undefined";
 const DEBUG =  typeof process.env.DEBUG !== "undefined";
 const WAIT =  typeof process.env.WAIT !== "undefined"?parseInt(process.env.WAIT):50000;
 const TIMEOUT =  typeof process.env.TIMEOUT !== "undefined"?parseInt(process.env.TIMEOUT):2000;
@@ -19,7 +20,7 @@ const FILTER = new RegExp(process.env.TESTFILTER, "i");
 
 const path_assignment = path.resolve(path.join(__dirname, "../", "quiz_2020"));
 const URL = `file://${path_assignment.replace("%", "%25")}`;
-const browser = new Browser({"waitDuration": WAIT, "silent": true});
+const browser = new Browser({"waitDuration": WAIT, "silent": true, "runScripts": false });
 
 // CRITICAL ERRORS. Si hay errores críticos, el resto de tests no se lanzan.
 let error_critical = null;
@@ -256,9 +257,11 @@ Cuando preguntes en el foro, asegúrate de incluir esa información para que pod
                 err = `Parece que no se puede lanzar el servidor con el comando "node ${bin_path}".`;
                 server = spawn('node', [bin_path], {env: {PORT: TEST_PORT}});
 
-		server.stdout.on('data', function(data) {
-		        //console.log('\t\tServer: ', data.toString()); 
-		});
+                if(LOG_SERVER) {
+                    server.stdout.on('data', function(data) {
+                        log('\t\tServer: ', data.toString()); 
+                    });
+                }
 
                 await new Promise(resolve => setTimeout(resolve, TIMEOUT));
                 browser.site = `http://localhost:${TEST_PORT}/`;
