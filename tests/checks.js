@@ -10,11 +10,11 @@ const process = require("process");
 var Git = require("nodegit");
 
 
-const LOG_SERVER =  typeof process.env.LOG_SERVER !== "undefined";
 const DEBUG =  typeof process.env.DEBUG !== "undefined";
+const LOG_SERVER =  typeof process.env.LOG_SERVER !== "undefined";
 const WAIT =  typeof process.env.WAIT !== "undefined"?parseInt(process.env.WAIT):50000;
 const TIMEOUT =  typeof process.env.TIMEOUT !== "undefined"?parseInt(process.env.TIMEOUT):2000;
-const TEST_PORT =  typeof process.env.TEST_PORT !== "undefined"?parseInt(process.env.TEST_PORT):3000;
+const TEST_PORT =  typeof process.env.TEST_PORT !== "undefined"?parseInt(process.env.TEST_PORT):3001;
 
 const FILTER = new RegExp(process.env.TESTFILTER, "i");
 
@@ -96,6 +96,7 @@ it = function(name, score, func) {
                 this.msg_err =  "Ha habido un fallo";
             }
             if (critical) {
+                console.log('Se ha producido un error crítico, se cancelan el resto de tests.')
                 error_critical = this.msg_err;
             }
             throw(e);
@@ -236,14 +237,12 @@ Cuando preguntes en el foro, asegúrate de incluir esa información para que pod
 
             let err = null;
             try{
-                err = "No hemos podido crear la base de datos";
                 // Crear base de datos nueva y poblarla antes de los tests funcionales. por defecto, el servidor coge quiz.sqlite del CWD
-                try{
+                err = `Existe una base de datos en ${db_file}, pero no hemos podido borrarla.`;
+                if (fs.existsSync(db_file)) {
                     fs.unlinkSync(db_file);
-                } catch(e) {
-                    log('No se ha podido borrar la base de datos');
-                    // No se ha podido borrar la base de datos. Probablemente no existiera
                 }
+                err = "No hemos podido crear la base de datos";
                 fs.closeSync(fs.openSync(db_file, 'w'));
 
                 let sequelize_cmd = path.join(path_assignment, "node_modules", ".bin", "sequelize");
@@ -263,7 +262,18 @@ Cuando preguntes en el foro, asegúrate de incluir esa información para que pod
                     });
                 }
 
+                server.stderr.on('data', function(data) {
+                    console.log('\t\tError en el servidor: ', data.toString()); 
+                });
+
                 await new Promise(resolve => setTimeout(resolve, TIMEOUT));
+
+                // The exit code should be null while the server is running
+                if(server.exitCode) {
+                    throw Error("El servidor se ha parado.");
+                    
+                }
+
                 browser.site = `http://localhost:${TEST_PORT}/`;
                 await browser.visit("/");
                 browser.assert.status(200);
@@ -282,6 +292,10 @@ Cuando preguntes en el foro, asegúrate de incluir esa información para que pod
                     browser.deleteCookie(cookie_name);
                 }
             } catch(e) {
+                console.log(err);
+                console.log();
+                console.log('Este es un error crítico, así que no podemos realizar el resto de tests.');
+                console.log();
                 log(e);
                 error_critical = err;
             }
@@ -369,7 +383,6 @@ Cuando preguntes en el foro, asegúrate de incluir esa información para que pod
 
 
                for (var group in groups) {
-                   log("Group: ", group);
                    for(var i=0; i<groups[group].length; i++) {
                        this.msg_err = `Error al intentar jugar en el grupo ${group}`;
                        let url = `/groups/${group}/randomplay`;
