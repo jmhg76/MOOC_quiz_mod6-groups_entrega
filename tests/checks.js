@@ -256,11 +256,13 @@ Cuando preguntes en el foro, asegúrate de incluir esa información para que pod
                 err = `Parece que no se puede lanzar el servidor con el comando "node ${bin_path}".`;
                 server = spawn('node', [bin_path], {env: {PORT: TEST_PORT}});
 
-                if(LOG_SERVER) {
-                    server.stdout.on('data', function(data) {
+                // Hay un issue extraño que hace que el servidor deje de funcionar en algún momento de los tests.
+                // Añadir el callback aquí, aunque no se ejecute, parece arreglar el problema.
+                server.stdout.on('data', function(data) {
+                    if(LOG_SERVER) {
                         log('\t\tServer: ', data.toString()); 
-                    });
-                }
+                    }
+                });
 
                 server.stderr.on('data', function(data) {
                     console.log('\t\tError en el servidor: ', data.toString()); 
