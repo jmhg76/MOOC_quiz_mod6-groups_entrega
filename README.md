@@ -1,12 +1,10 @@
 
 <img  align="left" width="150" style="float: left;" src="https://www.upm.es/sfs/Rectorado/Gabinete%20del%20Rector/Logos/UPM/CEI/LOGOTIPO%20leyenda%20color%20JPG%20p.png">
-<img  align="right" width="60" style="float: right;" src="http://www.dit.upm.es/figures/logos/ditupm-big.gif">
+<img  align="right" width="150" style="float: right;" src="https://miriadax.net/miriadax-theme/images/custom/logo_miriadax_new.svg">
 
 <br/><br/><br/>
-
-# Entrega 9: Quiz Groups
-
-Versión: 2 de Abril de 2020
+Módulo 6: Ficheros Adjuntos, añadir fotos a las Preguntas y a los Usuarios
+Versión: 19 de Junio de 2020
 
 ## Objetivos
 
@@ -21,7 +19,7 @@ La idea es que un grupo contenga los quizzes relacionados con un mismo tema. Se 
 El alumno debe desarrollar:
 
 * Todos los elementos necesarios (CRUD) para manejar los grupos, es decir, poder listar los grupos existentes, crear nuevos grupos, editarlos y borrarlos.
-* Añadir la funcionalidad **Random Play** desarrollada en la entrega 8 a los grupos, es decir, se jugaría a contestar solo a los quizzes de un grupo, que se presentarían de forma aleatoria y sin repeticiones.
+* Añadir la funcionalidad **Random Play** desarrollada en la entrega anterior a los grupos, es decir, se jugaría a contestar solo a los quizzes de un grupo, que se presentarían de forma aleatoria y sin repeticiones.
 * Añadir soporte de roles para que los únicos usuarios que pueden crear, editar y borrar los grupos sean los administradores. El resto de usuarios solo pueden consultar y jugar a los grupos.
 
 
@@ -80,41 +78,41 @@ GET   /groups/:groupId/randomcheck/:quizId?answer=respuesta ## Comprobar respue
     * **Usuario administrador**: puede crear, editar y destruir los grupos.
     * **Todos los usuarios**: pueden consultar el listado de grupos y jugar a **Random Play** con un grupo. 
 
-* Opcional de Git: Integrar las ramas **master** y las **entregas 8** y **9** para crear una versión del proyecto que tenga todas las funcionalidades desarrolladas.
+* Opcional de Git: Integrar las ramas **master** y las **randomplay* y **groups** para crear una versión del proyecto que tenga todas las funcionalidades desarrolladas.
 
 
 ## Descargar el código del proyecto
 
 Para desarrollar esta práctica es necesario utilizar la **versión 12 de Node.js**.
 
-El alumno debe clonar el proyecto **Entrega9\_groups** en el ordenador en el que se está trabajando:
+El alumno debe clonar el proyecto **MOOC_quiz_mod6-groups_entrega** en el ordenador en el que se está trabajando:
 
 ```sh
-$ git clone https://github.com/CORE-2020/Entrega9_groups
+$ git clone https://github.com/ging-moocs/MOOC_quiz_mod6-groups_entrega
 ```
 
-El proyecto **Entrega9\_groups** solo contiene los ficheros necesarios para ejecutar el autocorrector. El alumno debe clonar también el proyecto **Quiz** desarrollado en la asignatura en un subdirectorio de **Entrega9\_groups**. El proyecto **Quiz** está disponible en el siguiente repositorio git:
+El proyecto **MOOC_quiz_mod6-groups_entrega** solo contiene los ficheros necesarios para ejecutar el autocorrector. El alumno debe clonar también el proyecto **Quiz** desarrollado en la asignatura en un subdirectorio de **MOOC_quiz_mod6-groups_entrega**. El proyecto **Quiz** está disponible en el siguiente repositorio git:
 
 ```url
 https://github.com/CORE-UPM/quiz_2020
 ```
 
-Para clonar el proyecto **Quiz** en un subdirectorio dentro del proyecto **Entrega9\_groups**, e instalar las dependencias necesarias, ejecutar:
+Para clonar el proyecto **Quiz** en un subdirectorio dentro del proyecto **MOOC_quiz_mod6-groups_entrega**, e instalar las dependencias necesarias, ejecutar:
 
 ```sh
-$ cd Entrega9_groups
+$ cd MOOC_quiz_mod6-groups_entrega
 $ npm install 
 $ git clone https://github.com/CORE-UPM/quiz_2020
 $ cd quiz_2020
 $ npm install 
 ```
 
-Alternativamente, el alumno también puede clonar o copiar la versión del proyecto **Quiz** que modificó en el entrega 8. Suponiendo que la entrega 8 se realizó en un directorio hermano del actual, entonces para clonar el proyecto **Quiz** modificado en esa entrega, e instalar las dependencias, deberían ejecutarse los siguientes comandos:
+Alternativamente, el alumno también puede clonar o copiar la versión del proyecto **Quiz** que modificó en la entrega anterior. Suponiendo que la entrega anterior se realizó en un directorio hermano del actual, entonces para clonar el proyecto **Quiz** modificado en esa entrega, e instalar las dependencias, deberían ejecutarse los siguientes comandos:
 
 ```sh
-$ cd Entrega9_groups
+$ cd MOOC_quiz_mod6-groups_entrega
 $ npm install 
-$ git clone ../Entrega8_randomplay/quiz_2020
+$ git clone ../MOOC_quiz_mod4-randomplay_entrega
 $ cd quiz_2020
 $ npm install 
 ```
@@ -123,26 +121,26 @@ $ npm install
 
 ### Tarea 1 - Crear una rama git
 
-Para realizar esta práctica el alumno debe crear una rama, denominada **entrega9**, en el commit identificado con el tag **5.1_authors** ("*Step 5.1: Authors of Quizzes.*") del proyecto **Quiz**. El último commit de esta rama será la versión de la practica que se evaluará.
+Para realizar esta práctica el alumno debe crear una rama, denominada **groups**, en el commit identificado con el tag **5.1_authors** ("*Step 5.1: Authors of Quizzes.*") del proyecto **Quiz**. El último commit de esta rama será la versión de la practica que se evaluará.
 
-Nota: Asegúrese de que se encuentra en el subdirectorio **Entrega9\_groups/quiz_2020** antes de ejecutar los comandos que se describen más abajo.
+Nota: Asegúrese de que se encuentra en el subdirectorio **MOOC_quiz_mod6-groups_entrega/quiz_2020** antes de ejecutar los comandos que se describen más abajo.
 
 
-El alumno puede crear la rama **entrega9** ejecutando el siguiente comando:
+El alumno puede crear la rama **groups** ejecutando el siguiente comando:
 
 ```
-$ git branch entrega9 5.1_authors
+$ git branch groups 5.1_authors
 ```
 
-Este comando crea la rama **entrega9** en el commit identificado por el tag **5.1_authors**.
+Este comando crea la rama **groups** en el commit identificado por el tag **5.1_authors**.
 
 Para cambiarse a esta rama ejecutar:
 
 ```
-$ git checkout entrega9
+$ git checkout groups
 ```
 
-Para comprobar que se está trabajando en la rama **entrega9**, el alumno puede ejecutar el comando **"git branch"**, que presentará un listado de las ramas existentes, y marcando con un asterisco la rama actual de trabajo.
+Para comprobar que se está trabajando en la rama **groups**, el alumno puede ejecutar el comando **"git branch"**, que presentará un listado de las ramas existentes, y marcando con un asterisco la rama actual de trabajo.
 
 El comando **git checkout** anterior puede fallar si la instalacion de paquetes con "**npm install**" modificó el fichero **package-lock.json**. Si ocurre esto, ejecute **"git checkout package-lock.json"** para restaurar ese fichero a su estado original, y repita el checkout.
 
@@ -387,7 +385,7 @@ router.delete('/groups/:groupId(\\d+)',
 
 Nótese que se ha requerido el controlador de grupos y que se ha definido el middleware que carga el grupo referenciado por el parámetro de ruta **":groupId"**. 
 
-Las rutas para jugar son muy parecidas a las rutas **Random Play** desarrolladas en la Entrega 8. Teniendo en cuenta que son de tipo **GET**, que los paths son **"/groups/:groupId/randomplay"** y **"/groups/:groupId/randomcheck/:quizId"**, y que los middlewares de atienden estas peticiones son **"groupController.randomPlay"** y **"groupController.randomCheck"**, la definición de estas rutas sería algo parecido a: 
+Las rutas para jugar son muy parecidas a las rutas **Random Play** desarrolladas en la entrega anterior. Teniendo en cuenta que son de tipo **GET**, que los paths son **"/groups/:groupId/randomplay"** y **"/groups/:groupId/randomcheck/:quizId"**, y que los middlewares de atienden estas peticiones son **"groupController.randomPlay"** y **"groupController.randomCheck"**, la definición de estas rutas sería algo parecido a: 
 
 ```
 router.get('/groups/:groupId(\\d+)/randomplay',  groupController.randomPlay);
@@ -517,7 +515,7 @@ app.use(express.urlencoded({ extended: true }));
 
 Este cambio le indica al middleware **express.urlencoded** que los datos enviados por el formulario usan la sintaxis extendida de arrays. El middleware procesará los datos recibidos teniendo en cuenta esta sintaxis, y los pasará en un array asignado a **req.body.quizzesIds**.
  
-Las vistas **views/groups/random\_play.ejs**, **views/groups/random\_nomore.ejs** y **views/groups/random\_result.ejs** son parecidas a las usadas en la Entrega 8 **Random Play**. Se diferencian en que **res.render** pasa un parámetro adicional, llamado **group**, con el objeto grupo con el que se está jugando. 
+Las vistas **views/groups/random\_play.ejs**, **views/groups/random\_nomore.ejs** y **views/groups/random\_result.ejs** son parecidas a las usadas en la entrega anterior **Random Play**. Se diferencian en que **res.render** pasa un parámetro adicional, llamado **group**, con el objeto grupo con el que se está jugando. 
 
 El código de la vista **views/groups/random\_play.ejs** es el siguiente:
 
@@ -702,7 +700,7 @@ Middleware para eliminar un grupo. Es muy parecido a los ya existentes para *use
 
 #### Middlewares randomPlay(req, res, next) y randomCheck(req, res, next)
 
-Parecidos a los de la entrega 8.
+Parecidos a los de la entrega anterior.
 
 El principal cambio consiste en que para cada grupo al que se esté jugando, se debe guardar su array de preguntas ya contestadas, y el **id** de su último quiz preguntado, en un sitio diferente de la session. Esto permite que un usuario pueda jugar a varios grupos a la vez sin que se mezclen los datos de cada juego. Es decir, el usuario podría pulsar en el nombre de un grupo para empezar a jugar, luego pulsar en otro grupo para jugar otro juego paralelo. Si el usuario vuelve a pulsar sobre el grupo inicial, continuaría con ese juego en el punto donde lo dejó.
 
@@ -776,53 +774,24 @@ $ git add seeders/??????????????-FillGroupsTable.js
 $ git commit
 ```
 
-## Prueba de la práctica
+## Prueba de la práctica 
 
-Para ayudar al desarrollo, se provee una herramienta de autocorrección que prueba las distintas funcionalidades que se piden en el enunciado. Para utilizar esta herramienta debes tener node.js (y npm) (https://nodejs.org/es/) y Git instalados.
+Para ayudar al desarrollo, se provee una herramienta de autocorrección que prueba las distintas funcionalidades que se piden en el enunciado. Para utilizar esta herramienta debes tener node.js (y npm) ([https://nodejs.org/es/](https://nodejs.org/es/)) y Git instalados. 
 
-Para instalar y hacer uso de la herramienta de autocorrección en el ordenador local, ejecuta los siguientes comandos en el directorio raíz del proyecto, es decir, en el directorio padre del directorio **quiz_express**:
+Para instalar y hacer uso de la [herramienta de autocorrección](https://www.npmjs.com/package/moocauto) en el ordenador local, ejecuta los siguientes comandos en el directorio del proyecto:
 
 ```
-$ sudo npm install -g autocorector    ## Instala el programa de test
-$ autocorector                        ## Pasa los tests al fichero a entregar
-............................           ## en el directorio de trabajo
+$ npm install -g moocauto     ## Instala el programa de test
+$ moocauto                    ## Pasa los tests al fichero a entregar
+............................  ## en el directorio de trabajo
 ... (resultado de los tests)
 ```
-
-También se puede instalar como paquete local, en el caso de que no dispongas de permisos en 
-el ordenador en el que estás trabajando:
-
+También se puede instalar como paquete local, en el caso de que no se dispongas de permisos en el ordenador desde el que estás trabajando:
 ```
-$ npm install autocorector     ## Instala el programa de test
-$ npx autocorector             ## Pasa los tests al fichero a entregar
+$ npm install moocauto         ## Instala el programa de test
+$ npx moocauto                 ## Pasa los tests al fichero a entregar
 ............................   ## en el directorio de trabajo
 ... (resultado de los tests)
 ```
 
-Se puede pasar la herramienta de autocorrección tantas veces como se desee sin ninguna repercusión en la calificación.
-
-## Instrucciones para la Entrega y Evaluación.
-
-Una vez satisfecho con su calificación, el alumno puede subir su entrega a Moodle con el siguiente comando:
-
-```
-$ autocorector --upload
-```
-
-o, si se ha instalado como paquete local:
-
-```
-$ npx autocorector --upload
-```
-
-La herramienta de autocorrección preguntará por el correo del alumno y el token de Moodle. 
-En el enlace **https://www.npmjs.com/package/autocorector** se proveen instrucciones para encontrar dicho token.
-
-**RÚBRICA**: Se puntuará el ejercicio a corregir sumando el % indicado a la nota total si la parte indicada es correcta:
-
-- **30%:** Los grupos se crean, editan y borran solo por administradores.
-- **70%:** El juego de los grupos funciona bien.
-
-
-
-Si pasa todos los tests se dará la máxima puntuación.
+Se puede pasar la herramienta de autocorrección tantas veces como se desee.

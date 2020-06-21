@@ -1,13 +1,13 @@
 {
-    "name": "Entrega9_groups",
-    "author": "CORE-2020",
+    "name": "MOOC_quiz_mod2-express_generator_entrega",
+    "author": "ging-moocs",
     "license": "GNU",
-    "version": "0.1.9",
+    "version": "0.1.7",
     "info": {
-        "githubURL": "CORE-2020/Entrega9_groups",
+        "githubURL": "ging-moocs/MOOC_quiz_mod2-express_generator_entrega",
         "serverUrl": "https://autocorector.dit.upm.es/",
-        "courseId": "8249",
-        "assignmentId": "79813"
+        "courseId": "4",
+        "assignmentId": "8"
     },
     "dependencies": {
         "nodegit": "^0.26.5"
