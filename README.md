@@ -25,7 +25,7 @@ El alumno debe desarrollar:
 
 Para desarrollar esta practica el alumno debe completar estas tareas:
 
-* Tarea 1: Clonarse el proyecto **Quit** de la asignatura y crear una rama para desarrollar esta práctica.
+* Tarea 1: Clonarse el proyecto **Quiz** de la asignatura y crear una rama para desarrollar esta práctica.
 
 * Tarea 2: Crear un botón llamado **Groups** en la barra de navegación del layout de la aplicacion.
 

@@ -129,13 +129,13 @@ Cuando preguntes en el foro, asegúrate de incluir esa información para que pod
                fileexists.should.be.equal(true);
            });
 
-        it("Comprobando que existe la rama entrega9",
+        it("Comprobando que existe la rama groups",
            0,
            async function () {
                this.msg_err = `No se encuentra el repositorio en la carpeta ${path_assignment}`;
                let repo = await Git.Repository.open(path_assignment);
-               this.msg_err = "No se encuentra la rama entrega9";
-               await repo.getBranchCommit("entrega9");
+               this.msg_err = "No se encuentra la rama groups";
+               await repo.getBranchCommit("groups");
            });
 
         it(`Comprobar que la migración y el seeder existen`,
