@@ -104,7 +104,7 @@ it = function(name, score, func) {
     });
 };
 
-describe("Tests Práctica 9", function() {
+describe("Tests Groups", function() {
     after(function () {
 
         if(error_any || error_critical) {
