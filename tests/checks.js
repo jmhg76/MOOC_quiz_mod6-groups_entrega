@@ -108,11 +108,11 @@ describe("Tests Groups", function() {
     after(function () {
 
         if(error_any || error_critical) {
-            console.log(`Algún error de Javascript ha sido suprimido. Puedes obtener más información de los errores lanzando el autocorector con la variable DEBUG. Por ejemplo:
+            console.log(`Algún error de Javascript ha sido suprimido. Puedes obtener más información de los errores lanzando el moocauto con la variable DEBUG. Por ejemplo:
 
-	DEBUG=1 autocorector
+	DEBUG=1 moocauto
 
-Cuando preguntes en el foro, asegúrate de incluir esa información para que podamos ayudarte.
+Si preguntas en el foro, asegúrate de incluir esa información para que podamos ayudarte.
 `);
         }
     })
