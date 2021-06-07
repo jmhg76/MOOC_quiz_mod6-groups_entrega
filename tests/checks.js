@@ -77,7 +77,7 @@ it = function(name, score, func) {
         if(error_critical) {
             this.msg_err = "Un test crítico ha fallado, no podemos continuar hasta que pasen todos los tests críticos.";
             throw Error(this.msg_err);
-        } 
+        }
         if(FILTER && !FILTER.test(name)) {
             console.log(`Ignorando este test, de acuerdo con los filtros de test: ${FILTER}`);
             return;
@@ -260,12 +260,12 @@ Si preguntas en el foro, asegúrate de incluir esa información para que podamos
                 // Añadir el callback aquí, aunque no se ejecute, parece arreglar el problema.
                 server.stdout.on('data', function(data) {
                     if(LOG_SERVER) {
-                        log('\t\tServer: ', data.toString()); 
+                        log('\t\tServer: ', data.toString());
                     }
                 });
 
                 server.stderr.on('data', function(data) {
-                    console.log('\t\tError en el servidor: ', data.toString()); 
+                    console.log('\t\tError en el servidor: ', data.toString());
                 });
 
                 await new Promise(resolve => setTimeout(resolve, TIMEOUT));
@@ -273,7 +273,7 @@ Si preguntas en el foro, asegúrate de incluir esa información para que podamos
                 // The exit code should be null while the server is running
                 if(server.exitCode) {
                     throw Error("El servidor se ha parado.");
-                    
+
                 }
 
                 browser.site = `http://localhost:${TEST_PORT}/`;
@@ -341,7 +341,7 @@ Si preguntas en el foro, asegúrate de incluir esa información para que podamos
 
         it("La lista de grupos incluye un enlace para jugar",
            1,
-           async function(){ 
+           async function(){
                await browser.visit("/groups/");
                browser.assert.status(200);
                this.msg_err = "No se muestra enlace para Geography";
@@ -495,7 +495,9 @@ Si preguntas en el foro, asegúrate de incluir esa información para que podamos
                return allUsers(async function(user) {
                    await browser.visit("/groups");
                    ctx.msg_err = `El usuario ${user.username} no puede ver la lista de grupos correctamente`;
-                   browser.assert.text("#mainHeader > div.right > a:nth-child(1)", user.username);
+                   // No comprobar el nombre del usuario, por los últimos cambios de Quiz_2020
+                   // Otra opción es extraer el HTML y ver si el texto contiene el nombre del usuario
+                   //browser.assert.text("#mainHeader > div.right > a:nth-child(1)", user.username);
                    let expected = user.admin? 1 : 0;
                    ctx.msg_err = `El usuario ${user.username} ${user.admin?'sí':'no'} debería poder editar`;
                    browser.assert.elements('a[href="/groups/1/edit"]', expected);
